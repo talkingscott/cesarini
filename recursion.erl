@@ -2,7 +2,7 @@
 -module(recursion).
 -export([reverse/1, member/2, sum/1, bump/1, even/1, average/1, len/1,
         sum_to/1, sum_to/2, create/1, reverse_create/1, print_numbers/1,
-        filter/2, concatenate/1, flatten/1]).
+        filter/2, concatenate/1, flatten/1, quicksort/1, mergesort/1]).
 
 reverse(L) -> reverse_acc(L, []).
 
@@ -109,3 +109,35 @@ flatten_acc([H|T], Acc) when is_list(H) ->
   flatten_acc(T, flatten_acc(H, Acc));
 flatten_acc([H|T], Acc) ->
   flatten_acc(T, [H|Acc]).
+
+% Exercise 3-7
+quicksort([]) -> [];
+quicksort([H|T]) ->
+  Less = filter(T, H),
+  quicksort(Less) ++ [H] ++ quicksort(T -- Less).
+
+mergesort([]) -> [];
+mergesort([A]) -> [A];
+mergesort([A,B]) when A =< B -> [A,B];
+mergesort([A,B]) -> [B,A];
+mergesort(L) ->
+  {L1,L2} = split(L),
+  merge(mergesort(L1), mergesort(L2)).
+
+split(L) -> split_acc(L, 1, len(L), [], []).
+
+split_acc([], _, _, L1, L2) -> {L1,L2};
+split_acc([H|T], Index, N, L1, L2) when Index =< N div 2 ->
+  split_acc(T, Index + 1, N, [H|L1], L2);
+split_acc([H|T], Index, N, L1, L2) ->
+  split_acc(T, Index + 1, N, L1, [H|L2]).
+
+merge(L1, L2) -> reverse(merge_acc(L1, L2, [])).
+
+merge_acc([], [], Acc) -> Acc;
+merge_acc([H|T], [], Acc) -> merge_acc(T, [], [H|Acc]);
+merge_acc([], [H|T], Acc) -> merge_acc([], T, [H|Acc]);
+merge_acc([H1|T1], [H2|T2], Acc) when H1 =< H2 ->
+  merge_acc(T1, [H2|T2], [H1|Acc]);
+merge_acc([H1|T1], [H2|T2], Acc) ->
+  merge_acc([H1|T1], T2, [H2|Acc]).
